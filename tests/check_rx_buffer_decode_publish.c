@@ -124,8 +124,12 @@ static void init_state()
         size_t cnt; \
         int res; \
         unsigned char tmp[1]; \
+        lmqtt_decode_bytes_t bytes; \
         tmp[0] = (unsigned char) b; \
-        res = rx_buffer_decode_publish(&state, tmp, 1, &cnt); \
+        bytes.buf_len = 1; \
+        bytes.buf = tmp; \
+        bytes.bytes_written = &cnt; \
+        res = rx_buffer_decode_publish(&state, &bytes); \
         ck_assert_int_eq(exp_res, res); \
         ck_assert_uint_eq(exp_cnt, cnt); \
         state.internal.remain_buf_pos += exp_cnt; \

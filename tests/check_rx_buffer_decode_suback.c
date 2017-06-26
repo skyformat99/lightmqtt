@@ -15,8 +15,12 @@
     do { \
         size_t cnt; \
         unsigned char buf[1]; \
+        lmqtt_decode_bytes_t bytes; \
         buf[0] = b; \
-        res = rx_buffer_decode_suback(&state, buf, 1, &cnt); \
+        bytes.buf_len = 1; \
+        bytes.buf = buf; \
+        bytes.bytes_written = &cnt; \
+        res = rx_buffer_decode_suback(&state, &bytes); \
         ck_assert_uint_eq(exp_cnt, cnt); \
     } while(0)
 
