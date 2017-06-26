@@ -8,11 +8,23 @@
     memset(&connect, 0, sizeof(connect)); \
     state.internal.value.value = &connect
 
+#define DECODE_CONNACK(b, exp_cnt) \
+    do { \
+        size_t cnt; \
+        unsigned char buf[1]; \
+        buf[0] = b; \
+        res = rx_buffer_decode_connack(&state, buf, 1, &cnt); \
+        ck_assert_uint_eq(exp_cnt, cnt); \
+    } while(0)
+
+#define DECODE_CONNACK_OK(b) DECODE_CONNACK(b, 1)
+#define DECODE_CONNACK_ERR(b) DECODE_CONNACK(b, 0)
+
 START_TEST(should_decode_connack_valid_first_byte)
 {
     PREPARE;
 
-    res = rx_buffer_decode_connack(&state, 1);
+    DECODE_CONNACK_OK(1);
 
     ck_assert_int_eq(LMQTT_DECODE_CONTINUE, res);
     ck_assert_int_eq(1, connect.response.session_present);
@@ -23,7 +35,7 @@ START_TEST(should_decode_connack_invalid_first_byte)
 {
     PREPARE;
 
-    res = rx_buffer_decode_connack(&state, 3);
+    DECODE_CONNACK_ERR(3);
 
     ck_assert_int_eq(LMQTT_DECODE_ERROR, res);
     ck_assert_int_eq(0, connect.response.session_present);
@@ -34,9 +46,9 @@ START_TEST(should_decode_connack_valid_second_byte)
 {
     PREPARE;
 
-    res = rx_buffer_decode_connack(&state, 1);
+    DECODE_CONNACK_OK(1);
     state.internal.remain_buf_pos++;
-    res = rx_buffer_decode_connack(&state, 3);
+    DECODE_CONNACK_OK(3);
 
     ck_assert_int_eq(LMQTT_DECODE_FINISHED, res);
     ck_assert_int_eq(1, connect.response.session_present);
@@ -48,9 +60,9 @@ START_TEST(should_decode_connack_invalid_second_byte)
 {
     PREPARE;
 
-    res = rx_buffer_decode_connack(&state, 1);
+    DECODE_CONNACK_OK(1);
     state.internal.remain_buf_pos++;
-    res = rx_buffer_decode_connack(&state, 6);
+    DECODE_CONNACK_ERR(6);
 
     ck_assert_int_eq(LMQTT_DECODE_ERROR, res);
     ck_assert_int_eq(1, connect.response.session_present);
@@ -62,11 +74,11 @@ START_TEST(should_not_decode_third_byte)
 {
     PREPARE;
 
-    res = rx_buffer_decode_connack(&state, 1);
+    DECODE_CONNACK_OK(1);
     state.internal.remain_buf_pos++;
-    res = rx_buffer_decode_connack(&state, 3);
+    DECODE_CONNACK_OK(3);
     state.internal.remain_buf_pos++;
-    res = rx_buffer_decode_connack(&state, 0);
+    DECODE_CONNACK_ERR(0);
 
     ck_assert_int_eq(LMQTT_DECODE_ERROR, res);
 }

@@ -157,8 +157,9 @@ struct _lmqtt_rx_buffer_decoder_t {
     int (*pop_packet_with_id)(struct _lmqtt_rx_buffer_t *);
     lmqtt_decode_result_t (*decode_remaining)(struct _lmqtt_rx_buffer_t *,
         unsigned char);
+    /* TODO: rename this method */
     lmqtt_decode_result_t (*decode_byte)(struct _lmqtt_rx_buffer_t *,
-        unsigned char);
+        unsigned char *, size_t, size_t *);
 };
 
 typedef int (*lmqtt_message_on_publish_t)(void *, lmqtt_publish_t *);

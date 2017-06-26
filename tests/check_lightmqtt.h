@@ -159,13 +159,16 @@ lmqtt_encode_result_t publish_encode_payload(
     size_t offset, unsigned char *buf, size_t buf_len, size_t *bytes_written);
 
 lmqtt_decode_result_t rx_buffer_decode_connack(
-    lmqtt_rx_buffer_t *state, unsigned char b);
+    lmqtt_rx_buffer_t *state, unsigned char *buf, size_t buf_len,
+    size_t *bytes_written);
 
 lmqtt_decode_result_t rx_buffer_decode_publish(
-    lmqtt_rx_buffer_t *state, unsigned char b);
+    lmqtt_rx_buffer_t *state, unsigned char *buf, size_t buf_len,
+    size_t *bytes_written);
 
 lmqtt_decode_result_t rx_buffer_decode_suback(
-    lmqtt_rx_buffer_t *state, unsigned char b);
+    lmqtt_rx_buffer_t *state, unsigned char *buf, size_t buf_len,
+    size_t *bytes_written);
 
 int rx_buffer_pubrel(lmqtt_rx_buffer_t *state);
 
