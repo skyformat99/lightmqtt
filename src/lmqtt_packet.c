@@ -1080,7 +1080,8 @@ LMQTT_STATIC int rx_buffer_allocate_put(lmqtt_rx_buffer_t *state, long when,
     lmqtt_message_callbacks_t *message = state->message_callbacks;
     /* We may receive a buffer longer than what should be written with
        string_put(), in the case of a topic followed by the packet id and
-       payload; therefore the actual value should be capped before continuing */
+       payload, or a payload followed by data from other packets; therefore the
+       actual value should be capped before continuing */
     size_t max_len = len - (rem_pos - when);
     size_t buf_len = bytes->buf_len > max_len ? max_len : bytes->buf_len;
 
@@ -1120,7 +1121,7 @@ LMQTT_STATIC lmqtt_decode_result_t rx_buffer_decode_connack(
     unsigned char b;
     lmqtt_connect_t *connect = (lmqtt_connect_t *) state->internal.value.value;
 
-    assert(bytes->buf_len == 1);
+    assert(bytes->buf_len >= 1);
     b = bytes->buf[0];
     *bytes->bytes_written = 0;
 
@@ -1242,7 +1243,7 @@ LMQTT_STATIC lmqtt_decode_result_t rx_buffer_decode_suback(
         (lmqtt_subscribe_t *) state->internal.value.value;
     long pos = state->internal.remain_buf_pos - LMQTT_PACKET_ID_SIZE;
 
-    assert(bytes->buf_len == 1);
+    assert(bytes->buf_len >= 1);
     b = bytes->buf[0];
     *bytes->bytes_written = 0;
 
